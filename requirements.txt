@@ -1,0 +1,3 @@
+pennylane>=0.35
+matplotlib>=3.5
+numpy>=1.21

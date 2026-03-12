@@ -1,0 +1,5 @@
+env/
+datasets/
+__pycache__/
+run_h2o_vqe.py
+

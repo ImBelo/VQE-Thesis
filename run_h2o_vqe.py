@@ -155,7 +155,7 @@ def main():
     # 3. Create device and circuit
     # -------------------------------------------------------------------
     # For larger systems, you might want to use a faster simulator
-    dev = qml.device("lighting.qubit", wires=qubits)
+    dev = qml.device("lightning.qubit", wires=qubits)
     
     uccsd_circuit = uccsd_ansatz(
         hamiltonian, 
@@ -199,16 +199,35 @@ def main():
     # 6. Visualize
     # -------------------------------------------------------------------
     plot_convergence(history, convergence_threshold=1e-4)
+
     plt.show()
-    
-    if qubits >= 3 and n_params >= 3:
-        plot_parameter_trajectory(history)
-        plt.show()
-        
-        plot_energy_colored_trajectory(history)
-        plt.show()
-    
-    analyze_parameters(history)
+    final_params = history['params'] 
+    final_step_params = final_params[-1]  # Get the very last iteration
+
+    # Slice: Skip the first 20 (singles), take the remaining 120 (doubles)
+    doubles_final = final_step_params[20:] 
+
+    # Now reshape will work!
+    doubles_matrix = doubles_final.reshape((10, 12))
+
+    plt.figure(figsize=(8,6))
+    plt.imshow(np.abs(doubles_matrix), cmap='viridis')
+    plt.colorbar(label='Weight of Excitation')
+    plt.title('H2O Double Excitation Importance')
+    plt.xlabel('Virtual Orbitals')
+    plt.ylabel('Occupied Orbitals')
+    plt.show()
+
+    doubles_history = final_params[:, 20:] 
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(doubles_history, color='blue', alpha=0.1) # Plot all 120 paths faintly
+    plt.plot(np.mean(doubles_history, axis=1), color='red', linewidth=2, label='Mean Magnitude')
+    plt.title("Evolution of Double Excitations in H2O")
+    plt.xlabel("Optimization Step")
+    plt.ylabel("Parameter Value (Theta)")
+    plt.legend()
+    plt.show()
     
 
 if __name__ == "__main__":

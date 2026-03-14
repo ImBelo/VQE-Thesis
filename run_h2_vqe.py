@@ -2,6 +2,7 @@ import pennylane as qml
 from pennylane import numpy as pnp
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 from vqe_utils import (
     create_h2_molecule,
@@ -15,7 +16,8 @@ from vqe_utils import (
     analyze_parameters,
     create_energy_landscape,
     plot_energy_landscape,
-    analyze_landscape
+    analyze_landscape,
+    uccsd_ansatz_h2_reduced,
 )
 
 def main():
@@ -36,6 +38,7 @@ def main():
 
     dev = qml.device("default.qubit", wires=qubits)
     uccsd_circuit = uccsd_ansatz(hamiltonian, hf_state, qubits, s_wires, d_wires, dev)
+    uccsd_circuit_h2_reduced = uccsd_ansatz_h2_reduced(hamiltonian, hf_state, qubits, s_wires, d_wires, dev)
 
     n_params = len(singles) + len(doubles)
     print(f"Number of UCCSD parameters: {n_params}")
@@ -54,6 +57,17 @@ def main():
         plateau_tolerance=1e-5,
         print_every=10
     )
+    history_reduced, final_params_reduced, converged_reduced = run_vqe(
+        uccsd_circuit_h2_reduced,
+        n_params,
+        optimizer=opt,
+        max_iterations=1000,
+        convergence_threshold=1e-5,
+        plateau_window=10,
+        plateau_tolerance=1e-5,
+        print_every=10
+    )
+
 
     # -------------------------------------------------------------------
     # 4. Print final results
@@ -68,12 +82,23 @@ def main():
     print(f"Expected energy: {target_energy} Ha")
     print(f"Difference: {abs(history['energies'][-1] - target_energy):.2e} Ha")
     print(f"Status: {'CONVERGED' if converged else 'Max iterations reached'}")
+    cov_matrix = np.corrcoef(history['params'], rowvar=False)
+    print(history['params'])
+    print(f"Covariance: {cov_matrix}")
+
+    labels = ['Param 1', 'Param 2', 'Param 3']
+    sns.heatmap(cov_matrix, annot=True, xticklabels=labels, yticklabels=labels, cmap='coolwarm')
+    plt.title("Parameter Covariance")
+    plt.show()
+
+
 
     # -------------------------------------------------------------------
     # 5. Visualize convergence and parameter trajectories
     # -------------------------------------------------------------------
     plot_convergence(history, target_energy=target_energy, convergence_threshold=1e-5)
     plt.show()
+    plot_convergence(history_reduced, target_energy=target_energy, convergence_threshold=1e-5)
 
     params_array = history['params']
 

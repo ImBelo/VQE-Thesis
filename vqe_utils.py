@@ -31,6 +31,23 @@ def get_uccsd_excitations(qubits, electrons=2):
     s_wires, d_wires = excitations_to_wires(singles, doubles)
     return singles, doubles, s_wires, d_wires
 
+def uccsd_ansatz_h2_reduced(hamiltonian, hf_state, qubits, s_wires, d_wires, dev=None):
+    """
+    Return a QNode that computes the expectation value of the Hamiltonian 
+    of the H2 molecule using the UCCSD ansatz with reduced parameter space
+    """
+    if dev is None:
+        dev = qml.device("default.qubit", wires = qubits)
+
+    @qml.qnode(dev)
+    def circuit_reduced(params):
+
+        mapped_params = qml.math.stack([params[0], params[0], params[1]])
+        qml.UCCSD(mapped_params, wires=range(qubits), s_wires=s_wires,
+                  d_wires=d_wires, init_state=hf_state)
+        return qml.expval(hamiltonian)
+
+    return circuit_reduced
 def uccsd_ansatz(hamiltonian, hf_state, qubits, s_wires, d_wires, dev=None):
     """
     Return a QNode that computes the expectation value of the Hamiltonian
@@ -407,9 +424,9 @@ def analyze_landscape(X, Y, Z, opt_point):
     hessian_xy = np.gradient(np.gradient(Z, axis=0), axis=1)[min_idx]
 
     if hessian_xx > 0 and hessian_yy > 0:
-        print("\n✓ Minimum is a true convex minimum (both curvatures positive)")
+        print("\nMinimum is a true convex minimum (both curvatures positive)")
     else:
-        print("\n⚠ Minimum might be a saddle point or plateau")
+        print("\nMinimum might be a saddle point or plateau")
 
     if hessian_yy != 0:
         ratio = hessian_xx / hessian_yy

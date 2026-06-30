@@ -1,0 +1,25 @@
+settings:
+  num_runs: 1 
+
+molecules:
+  names: ["H2O"]
+  basis_sets: ["sto-3g"]
+  mappings: ["jordan_wigner", "bravyi_kitaev"]
+
+ansatz_types:
+  hardware_efficient:
+    layers: [1,2,3,4,5,6,7,8,9,10,11,12]
+  uccsd:
+    layers: [1]
+
+optimizers:
+  - type: "adam"
+    lr: [0.1]  
+    gradient_method: ["adjoint"]
+  - type: "cobyla"
+    lr: [0.1]  
+    gradient_method: "none"
+
+noise_models:
+  - model: "none"          
+    strengths: [0.0] 

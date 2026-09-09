@@ -35,7 +35,7 @@ class VQEPipeline:
                 logger.error("GPU device failed initialization. Falling back to CPU backend: lightning.qubit")
                 
         else:
-            self.device = qml.device("lightning.qubit", wires=n_qubits)
+            self.device = qml.device("default.qubit", wires=n_qubits)
             logger.info(f"Using optimized CPU backend: lightning.qubit ({n_qubits} qubits)")    
 
     def create_qnode(self, ansatz_builder):

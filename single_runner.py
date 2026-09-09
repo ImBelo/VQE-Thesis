@@ -27,7 +27,7 @@ def main():
         
         "ansatz": {
             "type": "hardware_efficient",                    # "uccsd", "hardware_efficient"
-            "layers": 8                        # uccsd 1 is fine
+            "layers": 4                        # uccsd 1 is fine
         },
         
         "optimizer": {

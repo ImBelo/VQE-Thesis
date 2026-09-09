@@ -69707,3 +69707,23 @@ All tasks completed. Saved results to /home/giammy/VQE-Thesis/utils/storage/db/v
 
 2026-06-10 09:12:42 | INFO | Total tasks to compute: 0
 2026-06-10 09:12:42 | INFO | All experiments are already completed!
+2026-07-09 11:24:20 | INFO | Total experiment to run: 130
+2026-07-09 11:24:20 | INFO | Found 900 already completed experiments in DB.
+
+2026-07-09 11:24:20 | INFO | Total tasks to compute: 130
+2026-07-09 11:24:20 | INFO | Running in GPU mode
+2026-07-09 11:24:35 | INFO | Total experiment to run: 180
+2026-07-09 11:24:35 | INFO | Found 900 already completed experiments in DB.
+
+2026-07-09 11:24:35 | INFO | Total tasks to compute: 0
+2026-07-09 11:24:35 | INFO | All experiments are already completed!
+2026-07-23 11:38:09 | INFO | Total experiment to run: 180
+2026-07-23 11:38:09 | INFO | Found 900 already completed experiments in DB.
+
+2026-07-23 11:38:09 | INFO | Total tasks to compute: 0
+2026-07-23 11:38:09 | INFO | All experiments are already completed!
+2026-07-27 09:49:29 | INFO | Total experiment to run: 180
+2026-07-27 09:49:29 | INFO | Found 900 already completed experiments in DB.
+
+2026-07-27 09:49:29 | INFO | Total tasks to compute: 0
+2026-07-27 09:49:29 | INFO | All experiments are already completed!

@@ -1,26 +1,43 @@
-from os import wait
-from optimizers import optimizers
+from __future__ import annotations
+
+from typing import Optional
+
+import numpy as np
 import pennylane as qml
+import time                                       # added
 from pennylane import numpy as pnp
 from loguru import logger
-import numpy as np
-import time
-       
-from ansatz import base_ansatz
-from ansatz.base_ansatz import AnsatzFactory
-from core.molecules import MoleculeFactory
+from noise.models.factory import NoiseFactory
+from ansatz.base_ansatz import AnsatzFactory, BaseAnsatz
+from optimizers.baseoptimizer import BaseVQEOptimizer
+from noise.models.base import BaseNoiseModel
+from optimizers.optimizers import OptimizerFactory 
+from core.molecules import (
+    MoleculeConfig,
+    MoleculeFactory,
+    QubitMappedSystem,
+)
 
 class VQEPipeline:
     """Executes VQE with different components"""
-    def __init__(self, hamiltonian, ansatz, optimizer,noise_model, n_qubits, n_electrons, h_ref):
-        self.hamiltonian = hamiltonian
-        self.ansatz = ansatz         
-        self.optimizer = optimizer
-        self.noise_model = noise_model
-        self.n_qubits = n_qubits     
-        self.n_electrons = n_electrons
-        self.h_ref = h_ref
-
+    def __init__(
+        self,
+        hamiltonian: qml.Hamiltonian,
+        ansatz: BaseAnsatz,
+        optimizer: BaseVQEOptimizer,
+        noise_model: Optional[BaseNoiseModel],
+        n_qubits: int,
+        n_electrons: int,
+        h_ref: np.ndarray,
+    ):
+        self.hamiltonian: qml.Hamiltonian = hamiltonian
+        self.ansatz: BaseAnsatz = ansatz
+        self.optimizer: BaseVQEOptimizer = optimizer
+        self.noise_model: Optional[BaseNoiseModel] = noise_model
+        self.n_qubits: int = n_qubits
+        self.n_electrons: int = n_electrons
+        self.h_ref: np.ndarray = h_ref
+        
         if self.noise_model is not None:
             # Noise models usually require density matrices (default.mixed)
             self.device = qml.device("default.mixed", wires=n_qubits)
@@ -63,11 +80,9 @@ class VQEPipeline:
         if self.noise_model is not None:
             base_circuit = self.noise_model.wrap_qnode(base_circuit)
 
-        # Optimizers call base circuit(params) leaving h_ref out so wrap it into a lamda
+        # Optimizers call base circuit(params) leaving h_ref out so wrap it into a lambda
         return lambda params: base_circuit(params, self.h_ref)
-
     
-  
     def run(self):
         """Run VQE optimization"""
         # number of params of parametrized gates
@@ -90,12 +105,15 @@ class VQEPipeline:
         return step, history, final_params, converged, execution_time  
 
     @classmethod
-    def from_config(cls, mol_config, ansatz_config, opt_config, noise_config):
+    def from_config(
+        cls,
+        mol_config: MoleculeConfig,
+        ansatz_config: dict,
+        opt_config: dict,
+        noise_config: Optional[dict],
+    ) -> VQEPipeline:
         """Orchestrates the factories to build the pipeline from config"""
-        from core.molecules import MoleculeFactory
-        from ansatz.base_ansatz import AnsatzFactory
-        from optimizers.optimizers import OptimizerFactory   
-        from noise.models.factory import NoiseFactory
+
 
         physical_mol = MoleculeFactory.create_physical(
             name=mol_config["name"], 

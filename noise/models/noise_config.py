@@ -1,16 +1,16 @@
-import pennylane as qml
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import List, Optional, Dict, Union
+from typing import List, Optional, Union
+
 
 @dataclass
 class NoiseConfig:
-    """Configuration for noise model"""
-    model: str                   # "none", "depolarizing", "amplitude_damping", "phase_damping", "thermal_relaxation", "mixed"
+    """Configuration for a noise model."""
 
-    strength: Union[float, str]  # 0.0 to 1.0, or "low", "medium", etc.
+    model: str
+    strength: Union[float, str]
     qubits: Optional[List[int]] = None
-    t1: float = 50.0
-    t2: float = 70.0
-    tg: float = 1.0
-
-
+    t1: float = 150.0
+    t2: float = 130.0
+    tg: float = 0.3  # gate time in microseconds

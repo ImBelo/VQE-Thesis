@@ -1,5 +1,5 @@
-from .optimizers import BaseVQEOptimizer
 import pennylane as qml
+from .baseoptimizer import BaseVQEOptimizer
 
 from loguru import logger
 

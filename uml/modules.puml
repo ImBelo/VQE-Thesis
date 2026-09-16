@@ -1,0 +1,14 @@
+@startuml VQE-Modules
+!theme plain
+skinparam componentStyle rectangle
+skinparam linetype ortho
+hide stereotype
+
+title VQE-Thesis — module dependencies
+
+component "analysis\n(2 files, 1 classes)" as C_analysis
+component "ansatz\n(4 files, 4 classes)" as C_ansatz
+component "core\n(3 files, 4 classes)" as C_core
+component "noise\n(7 files, 5 classes)" as C_noise
+component "optimizers\n(5 files, 4 classes)" as C_optimizers
+component "utils\n(6 files, 1 classes)" as C_utils

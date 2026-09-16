@@ -1,0 +1,136 @@
+@startuml VQE-Thesis
+hide empty members
+skinparam classAttributeIconSize 0
+set namespaceSeparator none
+
+class "Adam" as optimizers.adam.Adam {
+  method : str
+  opt : AdamOptimizer
+  minimize(circuit, initial_params)
+}
+class "AnsatzFactory" as ansatz.base_ansatz.AnsatzFactory {
+  create(config: dict[str, Any]) -> BaseAnsatz
+}
+class "BaseAnsatz" as ansatz.base_ansatz.BaseAnsatz {
+  n_qubits : int
+  {abstract}get_num_params() -> int
+}
+class "BaseNoiseModel" as noise.models.base.BaseNoiseModel {
+  qubits : Optional[Sequence[int]]
+  {abstract}wrap_qnode(base_qnode: Callable) -> Callable
+}
+class "BaseVQEOptimizer" as optimizers.baseoptimizer.BaseVQEOptimizer {
+  convergence_threshold : float
+  gradient_method : str | None
+  max_iterations : int
+  name : str
+  plateau_tolerance : float
+  plateau_window : int
+  print_every : int
+  {abstract}minimize(circuit: Callable, initial_params: np.ndarray) -> Tuple[int, Dict[str, List[Any]], Any, Union[Any, Literal[False]]]
+}
+class "Cobyla" as optimizers.cobyla.Cobyla {
+  method : str
+  rhobeg : float
+  minimize(circuit: Callable[[np.ndarray], float], initial_params: np.ndarray) -> tuple[int, dict[str, list[Any]], np.ndarray, bool]
+}
+class "ConfigGenerator" as utils.config.config_shuffler.ConfigGenerator {
+  config_data : Dict[str, Any]
+  cartesian_product(file_path: Path) -> List[Tuple[Dict[str, Any], Dict[str, Any], Dict[str, Any], Dict[str, Any]]]
+}
+class "GenericNoiseModel" as noise.models.generic.GenericNoiseModel {
+  channel_func : Callable
+  strength : float
+  wrap_qnode(base_qnode: Callable) -> Callable
+}
+class "HardwareEfficientCircuit" as ansatz.he_ansatz.HardwareEfficientCircuit {
+  entanglement : Literal
+  n_layers : int
+  get_num_params() -> int
+}
+class "MoleculeConfig" as core.molecules.MoleculeConfig {
+  basis : str
+  charge : int
+  geometry : Optional[Geometry]
+  mapping : str
+  multiplicity : int
+  name : str
+}
+class "MoleculeFactory" as core.molecules.MoleculeFactory {
+  GEOMETRIES : Dict[str, Geometry]
+  VALID_BASIS : Dict[str, List[str]]
+  create_mapped(physical: PhysicalMolecule, mapping: str) -> QubitMappedSystem
+  create_physical(name: str, basis: str, geometry: Optional[Geometry]) -> PhysicalMolecule
+}
+class "NoiseConfig" as noise.models.noise_config.NoiseConfig {
+  model : str
+  qubits : Optional[List[int]]
+  strength : Union[float, str]
+  t1 : float
+  t2 : float
+  tg : float
+}
+class "NoiseFactory" as noise.models.factory.NoiseFactory {
+  NOISE_LEVELS : ClassVar[Dict[str, float]]
+  create(config: Union[dict, NoiseConfig, None]) -> Optional[BaseNoiseModel]
+}
+class "OptimizerFactory" as optimizers.optimizers.OptimizerFactory {
+  create(config: dict[str, Any]) -> BaseVQEOptimizer
+}
+class "PhysicalMolecule" as core.molecules.PhysicalMolecule {
+  basis : str
+  charge : int
+  coordinates : ndarray
+  n_electrons : int
+  n_orbitals : int
+  n_spin_orbitals : int
+  symbols : List[str]
+  apply_mapping(mapping: str) -> QubitMappedSystem
+}
+class "QubitMappedSystem" as core.molecules.QubitMappedSystem {
+  hamiltonian : LinearCombination
+  hf_state : ndarray
+  mapping : str
+  n_qubits : int
+  physical
+}
+class "ThermalNoiseModel" as noise.models.thermal_relaxation.ThermalNoiseModel {
+  t1 : float
+  t2 : float
+  tg : float
+  wrap_qnode(base_qnode: Callable) -> Callable
+}
+class "UCCSDCircuit" as ansatz.uccsd_ansatz.UCCSDCircuit {
+  d_wires : list[list[list[int]]]
+  doubles : list[tuple[tuple[int, int], tuple[int, int]]]
+  n_electrons : int
+  n_layers : int
+  s_wires : list[list[int]]
+  singles : list[tuple[int, int]]
+  get_num_params() -> int
+  get_uccsd_excitations(qubits: int, electrons: int) -> tuple[list[tuple[int, int]], list[tuple[tuple[int, int], tuple[int, int]]], list[list[int]], list[list[list[int]]]]
+}
+class "VQEPipeline" as analysis.vqe_pipeline.VQEPipeline {
+  ansatz
+  device : LegacyDeviceFacade
+  h_ref : ndarray
+  hamiltonian : LinearCombination
+  n_electrons : int
+  n_qubits : int
+  noise_model : Optional[BaseNoiseModel]
+  optimizer
+  create_qnode(ansatz_builder)
+  from_config(mol_config: MoleculeConfig, ansatz_config: dict, opt_config: dict, noise_config: Optional[dict]) -> VQEPipeline
+  run()
+}
+ansatz.he_ansatz.HardwareEfficientCircuit --|> ansatz.base_ansatz.BaseAnsatz
+ansatz.uccsd_ansatz.UCCSDCircuit --|> ansatz.base_ansatz.BaseAnsatz
+noise.models.generic.GenericNoiseModel --|> noise.models.base.BaseNoiseModel
+noise.models.thermal_relaxation.ThermalNoiseModel --|> noise.models.base.BaseNoiseModel
+optimizers.adam.Adam --|> optimizers.baseoptimizer.BaseVQEOptimizer
+optimizers.cobyla.Cobyla --|> optimizers.baseoptimizer.BaseVQEOptimizer
+ansatz.base_ansatz.BaseAnsatz --o analysis.vqe_pipeline.VQEPipeline : ansatz
+core.molecules.PhysicalMolecule --o core.molecules.QubitMappedSystem : physical
+noise.models.base.BaseNoiseModel --o analysis.vqe_pipeline.VQEPipeline : noise_model
+optimizers.baseoptimizer.BaseVQEOptimizer --o analysis.vqe_pipeline.VQEPipeline : optimizer
+@enduml

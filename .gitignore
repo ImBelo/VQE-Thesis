@@ -1,6 +1,0 @@
-.env/
-datasets/
-__pycache__/
-.scala-build/
-.bsp/
-

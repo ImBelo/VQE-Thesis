@@ -22,12 +22,13 @@ def main():
         "molecule": {
             "name": "H2",                       # "H2", "H2O"
             "basis": "sto-3g",                  # "sto-3g", "6-31g"
-            "mapping": "bravyi_kitaev"          # "bravyi_kitaev", "jordan_wigner"
+            "mapping": "jordan_wigner"          # "bravyi_kitaev", "jordan_wigner"
         },
         
         "ansatz": {
             "type": "hardware_efficient",                    # "uccsd", "hardware_efficient"
-            "layers": 4                        # uccsd 1 is fine
+            "layers": 4,                        # uccsd 1 is fine
+            "entanglement": "linear",
         },
         
         "optimizer": {
@@ -38,8 +39,11 @@ def main():
         },
         
         "noise": {
-            "model": "none",                     # "none", "depolarizing", "phase_damping", "thermal_relaxation"
-            "strength": "low"                    # "low","medium", "high", (or 0.0 if model is "none") see noise config
+            "model": "thermal_relaxation",                     # "none", "depolarizing", "phase_damping", "thermal_relaxation"
+            "strength": "low",         # "low","medium", "high", (or 0.0 if model is "none") see noise config
+            "t1": 150,
+            "t2": 100,
+            "tg": 0.3
         }
     }
 
